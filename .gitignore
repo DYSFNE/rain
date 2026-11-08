@@ -1,0 +1,40 @@
+# === build directory ===
+build/
+
+#build outputs
+*.out
+*.lib
+*.a
+*.so
+*.dylib
+
+# === Windows executables and dynamic libraries
+*.exe
+*.dll
+
+# === Intermediate Build Outputs ===
+*.o
+*.obj
+*.s
+*.i
+*.ii
+
+# === Vim Temporary Files === 
+*.swp
+*.swo
+.*.swp
+.*.swo
+
+# backup files
+*~
+*.bak
+
+# generated dependency files
+*.d
+
+# windows junk
+Thumbs.db
+Desktop.ini
+
+# MSYS2 / GCC temporary files
+*.stackdump
