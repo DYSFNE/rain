@@ -29,4 +29,4 @@
 #define PUT_STR(ptr, string)                                                  \
   ((char *)memcpy((ptr), (string), sizeof(string) - 1) + (sizeof(string) - 1));
 
-#endif /* __RAIN_PUT_STR_H__
+#endif /* __RAIN_PUT_STR_H__ */
