@@ -33,4 +33,4 @@
  */
 #define ARRAY_COUNT(arr) (sizeof(arr) / sizeof(arr)[0])
 
-#endif /* __RAIN_ARRAY_COUNT_H__
+#endif /* __RAIN_ARRAY_COUNT_H__ */
