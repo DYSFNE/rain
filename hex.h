@@ -23,4 +23,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const char hex[];
+#ifndef HEX_H
+#define HEX_H
+
+#include <stdint.h>
+
+char *hex_offset(char *dest, int offset, int digits);
+char *hex_byte(char *dest, unsigned char byte);
+
+#endif /* HEX_H */

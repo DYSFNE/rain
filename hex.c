@@ -23,11 +23,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const char hex[] = "0123456789ABCDEF";
+#include "hex.h"
 
-void hex_offset(char *p, int off, int shift_start, int shift_decrement) {
-    int shift = shift_start;
-    for (shift; shift>=0; shift -= shift_decrement) {
-        *p++ = hex[offset >> shift & 0x0F];
-    }
+static const char hex[] = "0123456789ABCDEF";
+
+char *hex_offset(char *dest, int offset, int digits) {
+  for (int shift = (digits - 1) * 4; shift >= 0; shift -= 4) {
+    *dest++ = hex[offset >> shift & 0x0F];
+  }
+  return dest;
+}
+
+char *hex_byte(char *dest, unsigned char byte) {
+  *dest++ = hex[byte >> 4];
+  *dest++ = hex[byte & 0x0F];
+  return dest;
 }

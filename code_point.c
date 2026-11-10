@@ -23,9 +23,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "hex.h"
 #include <stdint.h>
 #include <stdio.h>
-#include "hex.h"
+#include <string.h>
 
 /*
  *  The source character set is a multibyte character set which includes the
@@ -40,6 +41,9 @@
  */
 
 #define ARRAY_COUNT(a) (sizeof(a) / sizeof(a)[0])
+
+#define PUT_CODE(ptr, string)                                                  \
+  ((char *)memcpy((ptr), (string), sizeof(string) - 1) + (sizeof(string) - 1));
 
 typedef enum {
   C_INVALID,
@@ -105,62 +109,55 @@ static void init_char_set(void) {
  */
 
 int cp_byte_size(unsigned char byte) {
-    int count = 0;
+  int count = 1;
 
-    for (int bit = 7; bit >= 4; bit--) {
-        if ((byte >> bit) & 0x01) {
-            count++;
-        } else {
-            break;
-        }
+  for (int bit = 7; bit >= 4; bit--) {
+    if ((byte >> bit) & 0x01) {
+      count++;
+    } else {
+      break;
     }
-    return count;
+  }
+  return count;
 }
 
 int code_point(FILE *fptr) {
-    unsigned char buf[128];
-    char line[128];
-    char *end = line + sizeof(line);
-    size_t got;
-    uint64_t offset = 0;
-    int count;
+  unsigned char buf[128];
+  char line[128];
+  char *end = line + sizeof(line);
+  size_t got;
+  uint64_t offset = 0;
+  int count;
 
-    got = fread(buf, 1, sizeof(buf), fptr);
+  got = fread(buf, 1, sizeof(buf), fptr);
 
-    for (size_t i = 0; i < got; i++) {
-        char *p = line;
-        /* Write the offset as 8 hex digits (bits 31-0), highest digit first */
-        p = hex_offset(line, offset, 8);
-
-        *p++ = ' ';
-        *p++ = ' ';
-        *p++ = ' ';
-
-        count = cp_byte_size(buf[i]);
-        switch(count) {
-            case 0 : puts("0");
-                     *p++ = 'U';
-                     *p++ = '+';
-                     *p++ = '0';
-                     *p++ = '0';
-                     *p++ = hex[buf[i] >> 4];
-                     *p++ = hex[buf[i] & 0x0F];
-                     offset++;
-                     break;
-            case 1 : puts("1");
-                     break;
-            case 2 : puts("2");
-                     offset += 2;
-                     break;
-            case 3 : puts("3");
-                     offset += 3;
-                     break;
-            case 4 : puts("4");
-                     offset += 4;
-                     break;
-        }
+  for (size_t i = 0; i < got; i++) {
+    /* Write the offset as 8 hex digits (bits 31-0), highest digit first */
+    char *ptrline = hex_offset(line, offset, 8);
+    /* Add space between the hex offset and the code point table data */
+    ptrline = PUT_CODE(ptrline, "   ");
+    /* Get the byte size of the character */
+    count = cp_byte_size(buf[i]);
+    switch (count) {
+    case 1:
+      ptrline = PUT_CODE(ptrline, "U+00");
+      ptrline = hex_byte(ptrline, buf[i]);
+      offset++;
+      break;
+    case 2:
+      puts("2");
+      break;
+    case 3:
+      puts("3");
+      offset += 2;
+      break;
+    case 4:
+      puts("4");
+      offset += 3;
+      break;
     }
-    return 0;
+  }
+  return 0;
 }
 
 int main(void) {
