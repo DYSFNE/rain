@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "hex.h"
 
 /*
  *  The source character set is a multibyte character set which includes the
@@ -60,6 +61,11 @@ static const unsigned char punc[] = {
 
 static unsigned char char_set[256];
 
+/**
+ *  @brief: initialize the char_set table with the
+ *  class of each byte value
+ */
+
 static void init_char_set(void) {
   for (size_t i = 0; i < ARRAY_COUNT(whitespace); i++) {
     char_set[whitespace[i]] = C_WHITESPACE;
@@ -86,7 +92,64 @@ static void init_char_set(void) {
   }
 }
 
-int phase_1(void) {}
+/**
+ *  @brief: Count the 1 bits at the start of a UTF-8 byte.
+ *  @param:
+ *      byte: The byte to examine.
+ *  @return:
+ *      0 for ASCII
+ *      1 for a continuation byte
+ *      2 for a 2 byte character
+ *      3 for a 3 byte character
+ *      4 for a 4 byte character
+ */
+
+int cp_byte_size(unsigned char byte) {
+    int count = 0;
+
+    for (int bit = 7; bit >= 4; bit--) {
+        if ((byte >> bit) & 0x01) {
+            count++;
+        } else {
+            break;
+        }
+    }
+    return count;
+}
+
+int code_point(FILE *fptr) {
+    unsigned char buf[128];
+    char line[128];
+    size_t got;
+    uint64_t offset = 0;
+    int count;
+
+    got = fread(buf, 1, sizeof(buf), fptr);
+
+    for (size_t i = 0; i < got; i++) {
+        /* Write the offset as 8 hex digits (bits 31-0), highest digit first */
+        line = hex_offset(line, offset, 8);
+
+        count = cp_byte_size(buf[i]);
+        switch(count) {
+            case 0 : puts("0");
+                     offset++;
+                     break;
+            case 1 : puts("1");
+                     break;
+            case 2 : puts("2");
+                     offset += 2;
+                     break;
+            case 3 : puts("3");
+                     offset += 3;
+                     break;
+            case 4 : puts("4");
+                     offset += 4;
+                     break;
+        }
+    }
+    return 0;
+}
 
 int main(void) {
   FILE *fptr;
@@ -100,7 +163,7 @@ int main(void) {
     return 1;
   }
 
-  phase_1(fptr);
+  code_point(fptr);
 
   fclose(fptr);
 

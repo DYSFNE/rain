@@ -49,7 +49,6 @@ uint64_t hex_dump(FILE *fptr) {
   unsigned char buf[16];
   char line[96];
   size_t got;
-  ;
   uint64_t offset = 0;
 
   while ((got = fread(buf, 1, sizeof(buf), fptr)) > 0) {
