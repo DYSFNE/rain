@@ -23,6 +23,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "array_count.h"
+#include "put_str.h"
 #include "hex.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -39,11 +41,6 @@
  *  d) 29 punctuation characters: _ { } [ ] # ( ) < > % : ; . ? * + - / ^ & | ~
  *  ! = , \ " '
  */
-
-#define ARRAY_COUNT(a) (sizeof(a) / sizeof(a)[0])
-
-#define PUT_CODE(ptr, string)                                                  \
-  ((char *)memcpy((ptr), (string), sizeof(string) - 1) + (sizeof(string) - 1));
 
 typedef enum {
   C_INVALID,
@@ -97,26 +94,41 @@ static void init_char_set(void) {
 }
 
 /**
- *  @brief: Count the 1 bits at the start of a UTF-8 byte.
+ *  @brief: Get the size of the UTF-8 character that starts with a byte
  *  @param:
- *      byte: The byte to examine.
+ *      byte: The first byte of the character.
  *  @return:
- *      0 for ASCII
- *      1 for a continuation byte
- *      2 for a 2 byte character
- *      3 for a 3 byte character
- *      4 for a 4 byte character
+ *      The size of the character in bytes (1 to 4), or 0 if 'byte'
+ *      cannot start a character (a continuation byte, or a byte
+ *      that is not valid in UTF-8)
  */
 
 int cp_byte_size(unsigned char byte) {
-  int count = 1;
+  int count = 0;
 
-  for (int bit = 7; bit >= 4; bit--) {
-    if ((byte >> bit) & 0x01) {
-      count++;
-    } else {
-      break;
-    }
+  /* A byte with the most significant bit set to 0 (0xxxxxxx) is a full 1-byte character */
+  if ((byte & 0x80) == 0) {
+      return 1;
+  }
+
+  /* 
+   * The number of 1 bits at the start of the first byte is the size 
+   * of the character: 110xxxxx = 2, 1110xxxx = 3, 11110xxx = 4 
+   */
+  for (int bit = 7; bit >= 3; bit--) {
+      if ((byte >> bit) & 0x01) {
+          count++;
+      } else {
+          break;
+      }
+  }
+
+  /* 
+   * One 1 bit (10xxxxxx) is a continuation byte, and five 1 bits
+   * (11111xxx) are not valid in UTF-8. These cannot start a valid character
+   */
+  if (count < 2 || count > 4) {
+      return 0;
   }
   return count;
 }
@@ -140,7 +152,7 @@ int code_point(FILE *fptr) {
     count = cp_byte_size(buf[i]);
     switch (count) {
     case 1:
-      ptrline = PUT_CODE(ptrline, "U+00");
+      ptrline = PUT_STR(ptrline, "U+00");
       ptrline = hex_byte(ptrline, buf[i]);
       offset++;
       break;

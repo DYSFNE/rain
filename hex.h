@@ -23,12 +23,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HEX_H
-#define HEX_H
+#ifndef __RAIN_HEX_H__
+#define __RAIN_HEX_H__
 
 #include <stdint.h>
 
 char *hex_offset(char *dest, int offset, int digits);
 char *hex_byte(char *dest, unsigned char byte);
 
-#endif /* HEX_H */
+#endif /* __RAIN_HEX_H__ */

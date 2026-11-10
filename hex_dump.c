@@ -23,6 +23,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "array_count.h"
+#include "hex.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -43,38 +45,28 @@
  *
  */
 
-static const char hex[] = "0123456789ABCDEF";
-
 uint64_t hex_dump(FILE *fptr) {
   unsigned char buf[16];
   char line[96];
   size_t got;
   uint64_t offset = 0;
 
-  while ((got = fread(buf, 1, sizeof(buf), fptr)) > 0) {
-    char *p = line;
-
-    for (int shift = 28; shift >= 0; shift -= 4) {
-      *p++ = hex[offset >> shift & 0x0F];
-    }
-
-    *p++ = ' ';
-    *p++ = ' ';
-    *p++ = ' ';
+  while ((got = fread(buf, 1, ARRAY_COUNT(buf), fptr)) > 0) {
+    char *ptrline = hex_offset(ptrline, offset, 8);
+    ptrline = PUT_STR(ptrline, "   ");
 
     for (size_t i = 0; i < got; i++) {
-      *p++ = hex[buf[i] >> 4];
-      *p++ = hex[buf[i] & 0x0F];
+      ptrline = hex_byte(ptrline, buf[i]);
 
       if ((i + 1) < got) {
-        *p++ = ' ';
+        *ptrline++ = ' ';
         if ((i + 1) % 4 == 0) {
-          *p++ = ' ';
+          *ptrline++ = ' ';
         }
       }
     }
 
-    *p++ = '\n';
+    *ptrline++ = '\n';
     fwrite(line, 1, (size_t)(p - line), stdout);
     offset += got;
   }
