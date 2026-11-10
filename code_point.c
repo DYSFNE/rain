@@ -120,6 +120,7 @@ int cp_byte_size(unsigned char byte) {
 int code_point(FILE *fptr) {
     unsigned char buf[128];
     char line[128];
+    char *end = line + sizeof(line);
     size_t got;
     uint64_t offset = 0;
     int count;
@@ -127,12 +128,23 @@ int code_point(FILE *fptr) {
     got = fread(buf, 1, sizeof(buf), fptr);
 
     for (size_t i = 0; i < got; i++) {
+        char *p = line;
         /* Write the offset as 8 hex digits (bits 31-0), highest digit first */
-        line = hex_offset(line, offset, 8);
+        p = hex_offset(line, offset, 8);
+
+        *p++ = ' ';
+        *p++ = ' ';
+        *p++ = ' ';
 
         count = cp_byte_size(buf[i]);
         switch(count) {
             case 0 : puts("0");
+                     *p++ = 'U';
+                     *p++ = '+';
+                     *p++ = '0';
+                     *p++ = '0';
+                     *p++ = hex[buf[i] >> 4];
+                     *p++ = hex[buf[i] & 0x0F];
                      offset++;
                      break;
             case 1 : puts("1");
