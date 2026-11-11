@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 
-char *hex_offset(char *dest, int offset, int digits);
+char *write_hex(char *dest, uint64_t offset, int digits);
 char *hex_byte(char *dest, unsigned char byte);
 
 #endif /* __RAIN_HEX_H__ */

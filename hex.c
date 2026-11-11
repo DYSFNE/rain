@@ -24,12 +24,14 @@
  */
 
 #include "hex.h"
+#include <assert.h>
 
 static const char hex[] = "0123456789ABCDEF";
 
-char *hex_offset(char *dest, int offset, int digits) {
+char *write_hex(char *dest, uint64_t value, int digits) {
+  assert(digits >= 1 && digits <= 16);
   for (int shift = (digits - 1) * 4; shift >= 0; shift -= 4) {
-    *dest++ = hex[offset >> shift & 0x0F];
+    *dest++ = hex[(value >> shift) & 0x0F];
   }
   return dest;
 }

@@ -25,6 +25,7 @@
 
 #include "array_count.h"
 #include "hex.h"
+#include "ptr_str.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -67,7 +68,7 @@ uint64_t hex_dump(FILE *fptr) {
     }
 
     *ptrline++ = '\n';
-    fwrite(line, 1, (size_t)(p - line), stdout);
+    fwrite(line, 1, (size_t)(ptrline - line), stdout);
     offset += got;
   }
 
