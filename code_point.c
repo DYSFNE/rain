@@ -31,16 +31,45 @@
 #include <string.h>
 
 /*
- *  The source character set is a multibyte character set which includes the
- *  basic source character set as a single-byte subset, consisting of the
- *  following 96 characters:
- *  a) 5 whitespace characters (space, horizontal tab, vertical tab, form feed,
- *  new-line)
- *  b) 10 digit characters from '0' to '9'
- *  c) 52 letters from 'a' to 'z' and from 'A' to 'Z'
- *  d) 29 punctuation characters: _ { } [ ] # ( ) < > % : ; . ? * + - / ^ & | ~
- *  ! = , \ " '
- */
+*    The only octet of a "sequence" of one has the higher-order 
+*    bit set to 0, the remaining 7 bits being used to encode the
+*    character number.
+*
+*    In a sequence of n bytes, given that n > 1, the MSB has the n 
+*    higher-order bits set to 1, followed by a bit set to 0.
+*
+*    Example:
+*    Given a sequence of 3 bytes the MSB would be as follows:
+*            1110 xxxx xxxx xxxx xxxx xxxx
+*
+*    The remaining bits of the MSB contain bits from the number of the 
+*    character to be encoded.
+*
+*    The following bytes all have the higher order bit set to 1 and following
+*    bit set to 0, leaving 6 bits in each to contain bits from the character
+*    to be encoded:
+*
+*             Char. number range  |        UTF-8 octet sequence
+*                (hexadecimal)    |              (binary)
+*             --------------------+---------------------------------------------
+*             0000 0000-0000 007F | 0xxxxxxx
+*             0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+*             0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+*             0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+*
+*
+*    https://www.rfc-editor.org/info/rfc3629/#section-3
+*
+*  The source character set is a multibyte character set which includes the
+*  basic source character set as a single-byte subset, consisting of the
+*  following 96 characters:
+*  a) 5 whitespace characters (space, horizontal tab, vertical tab, form feed,
+*  new-line)
+*  b) 10 digit characters from '0' to '9'
+*  c) 52 letters from 'a' to 'z' and from 'A' to 'Z'
+*  d) 29 punctuation characters: _ { } [ ] # ( ) < > % : ; . ? * + - / ^ & | ~
+*  ! = , \ " '
+*/
 
 typedef enum {
   C_INVALID,
@@ -103,15 +132,13 @@ static void init_char_set(void) {
  *      that is not valid in UTF-8)
  */
 
-int cp_byte_size(unsigned char byte) {
-  int count = 0;
-
+size_t cp_byte_size(unsigned char byte) {
+  size_t count = 0;
   /* A byte with the most significant bit set to 0 (0xxxxxxx) is a full 1-byte
    * character */
   if ((byte & 0x80) == 0) {
-    return 1;
+    return (size_t)1;
   }
-
   /*
    * The number of 1 bits at the start of the first byte is the size
    * of the character: 110xxxxx = 2, 1110xxxx = 3, 11110xxx = 4
@@ -123,73 +150,75 @@ int cp_byte_size(unsigned char byte) {
       break;
     }
   }
-
   /*
    * One 1 bit (10xxxxxx) is a continuation byte, and five 1 bits
-   * (11111xxx) are not valid in UTF-8. These cannot start a valid character
+   * (11111xxx) or more are not valid in UTF-8. These cannot start a valid character
    */
   if (count < 2 || count > 4) {
-    return 0;
+    return (size_t)0;
   }
   return count;
 }
 
+enum {
+    CP_BUF_SIZE    = 128,
+    CP_LINE_SIZE   = 128
+}
+
 int code_point(FILE *fptr) {
-  unsigned char buf[128];
-  char line[128];
-  size_t got; // bytes received
+  unsigned char buf[CP_BUF_SIZE];
+  char line[CP_LINE_SIZE];
   size_t available = 0;
   uint64_t offset = 0;
-  int count;
 
-  while ((got = fread(buf + available, 1, (sizeof(buf) - available), fptr)) >
+  while ((size_t got = fread(buf + available, 1, (sizeof(buf) - available), fptr)) >
          0) {
-    available += got;
-
-    for (size_t i = 0; i < got; i++) {
+      available += got;
+      size_t total = available;
+    for (size_t pos = 0; pos < total; pos++) {
+        /* Get the byte size of the character */
+        size_t count = cp_byte_size(buf[pos]); 
+        /* Check if there is room in the buffer to process the character first */
+        if (count > available) {
+            memmove(buf, buf + pos, available);
+            break;
+        }
       /* Write the offset as 8 hex digits (bits 31-0), highest digit first */
       char *ptrline = hex_offset(line, offset, 8);
       /* Add space between the hex offset and the code point table data */
       ptrline = PUT_STR(ptrline, "   ");
-      /* Get the byte size of the character */
-      count = cp_byte_size(buf[i]);
-
-      if (count > available) {
-        memmove(buf, buf + got - available, available);
-        break;
-      }
 
       switch (count) {
       case 1:
         ptrline = PUT_STR(ptrline, "U+00");
-        ptrline = hex_byte(ptrline, buf[i]);
+        ptrline = hex_byte(ptrline, buf[pos]);
         offset += count;
         available -= count;
         break;
       case 2:
-        if (got - i < count) {
+        if (got - pos < count) {
           return 0;
         }
         ptrline = PUT_STR(ptrline, "U+");
-        ptrline = hex_byte(ptrline, (buf[i] & 0x3F));     // 0x3F 0011 1111
-        ptrline = hex_byte(ptrline, (buf[i + 1] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[pos] & 0x3F));     // 0x3F 0011 1111
+        ptrline = hex_byte(ptrline, (buf[pos + 1] & 0x7F)); // 0x7F 0111 1111
         offset += count;
         available -= count;
         break;
       case 3:
         ptrline = PUT_STR(ptrline, "U+");
-        ptrline = hex_byte(ptrline, (buf[i] & 0x1F));     // 0x1F 0001 1111
-        ptrline = hex_byte(ptrline, (buf[i + 1] & 0x7F)); // 0x7F 0111 1111
-        ptrline = hex_byte(ptrline, (buf[i + 2] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[pos] & 0x1F));     // 0x1F 0001 1111
+        ptrline = hex_byte(ptrline, (buf[pos + 1] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[pos + 2] & 0x7F)); // 0x7F 0111 1111
         offset += count;
         available -= count;
         break;
       case 4:
         ptrline = PUT_STR(ptrline, "U+");
-        ptrline = hex_byte(ptrline, (buf[i] & 0x0F));     // 0x1F 0000 1111
-        ptrline = hex_byte(ptrline, (buf[i + 1] & 0x7F)); // 0x7F 0111 1111
-        ptrline = hex_byte(ptrline, (buf[i + 2] & 0x7F)); // 0x7F 0111 1111
-        ptrline = hex_byte(ptrline, (buf[i + 3] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[pos] & 0x0F));     // 0x1F 0000 1111
+        ptrline = hex_byte(ptrline, (buf[pos + 1] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[pos + 2] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[pos + 3] & 0x7F)); // 0x7F 0111 1111
         offset += count;
         available -= count;
         break;
