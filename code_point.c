@@ -24,8 +24,8 @@
  */
 
 #include "array_count.h"
-#include "put_str.h"
 #include "hex.h"
+#include "ptr_str.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -106,29 +106,30 @@ static void init_char_set(void) {
 int cp_byte_size(unsigned char byte) {
   int count = 0;
 
-  /* A byte with the most significant bit set to 0 (0xxxxxxx) is a full 1-byte character */
+  /* A byte with the most significant bit set to 0 (0xxxxxxx) is a full 1-byte
+   * character */
   if ((byte & 0x80) == 0) {
-      return 1;
+    return 1;
   }
 
-  /* 
-   * The number of 1 bits at the start of the first byte is the size 
-   * of the character: 110xxxxx = 2, 1110xxxx = 3, 11110xxx = 4 
+  /*
+   * The number of 1 bits at the start of the first byte is the size
+   * of the character: 110xxxxx = 2, 1110xxxx = 3, 11110xxx = 4
    */
   for (int bit = 7; bit >= 3; bit--) {
-      if ((byte >> bit) & 0x01) {
-          count++;
-      } else {
-          break;
-      }
+    if ((byte >> bit) & 0x01) {
+      count++;
+    } else {
+      break;
+    }
   }
 
-  /* 
+  /*
    * One 1 bit (10xxxxxx) is a continuation byte, and five 1 bits
    * (11111xxx) are not valid in UTF-8. These cannot start a valid character
    */
   if (count < 2 || count > 4) {
-      return 0;
+    return 0;
   }
   return count;
 }
@@ -136,37 +137,63 @@ int cp_byte_size(unsigned char byte) {
 int code_point(FILE *fptr) {
   unsigned char buf[128];
   char line[128];
-  char *end = line + sizeof(line);
-  size_t got;
+  size_t got; // bytes received
+  size_t available = 0;
   uint64_t offset = 0;
   int count;
 
-  got = fread(buf, 1, sizeof(buf), fptr);
+  while ((got = fread(buf + available, 1, (sizeof(buf) - available), fptr)) >
+         0) {
+    available += got;
 
-  for (size_t i = 0; i < got; i++) {
-    /* Write the offset as 8 hex digits (bits 31-0), highest digit first */
-    char *ptrline = hex_offset(line, offset, 8);
-    /* Add space between the hex offset and the code point table data */
-    ptrline = PUT_CODE(ptrline, "   ");
-    /* Get the byte size of the character */
-    count = cp_byte_size(buf[i]);
-    switch (count) {
-    case 1:
-      ptrline = PUT_STR(ptrline, "U+00");
-      ptrline = hex_byte(ptrline, buf[i]);
-      offset++;
-      break;
-    case 2:
-      puts("2");
-      break;
-    case 3:
-      puts("3");
-      offset += 2;
-      break;
-    case 4:
-      puts("4");
-      offset += 3;
-      break;
+    for (size_t i = 0; i < got; i++) {
+      /* Write the offset as 8 hex digits (bits 31-0), highest digit first */
+      char *ptrline = hex_offset(line, offset, 8);
+      /* Add space between the hex offset and the code point table data */
+      ptrline = PUT_STR(ptrline, "   ");
+      /* Get the byte size of the character */
+      count = cp_byte_size(buf[i]);
+
+      if (count > available) {
+        memmove(buf, buf + got - available, available);
+        break;
+      }
+
+      switch (count) {
+      case 1:
+        ptrline = PUT_STR(ptrline, "U+00");
+        ptrline = hex_byte(ptrline, buf[i]);
+        offset += count;
+        available -= count;
+        break;
+      case 2:
+        if (got - i < count) {
+          return 0;
+        }
+        ptrline = PUT_STR(ptrline, "U+");
+        ptrline = hex_byte(ptrline, (buf[i] & 0x3F));     // 0x3F 0011 1111
+        ptrline = hex_byte(ptrline, (buf[i + 1] & 0x7F)); // 0x7F 0111 1111
+        offset += count;
+        available -= count;
+        break;
+      case 3:
+        ptrline = PUT_STR(ptrline, "U+");
+        ptrline = hex_byte(ptrline, (buf[i] & 0x1F));     // 0x1F 0001 1111
+        ptrline = hex_byte(ptrline, (buf[i + 1] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[i + 2] & 0x7F)); // 0x7F 0111 1111
+        offset += count;
+        available -= count;
+        break;
+      case 4:
+        ptrline = PUT_STR(ptrline, "U+");
+        ptrline = hex_byte(ptrline, (buf[i] & 0x0F));     // 0x1F 0000 1111
+        ptrline = hex_byte(ptrline, (buf[i + 1] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[i + 2] & 0x7F)); // 0x7F 0111 1111
+        ptrline = hex_byte(ptrline, (buf[i + 3] & 0x7F)); // 0x7F 0111 1111
+        offset += count;
+        available -= count;
+        break;
+      }
     }
   }
   return 0;
