@@ -1,34 +1,44 @@
-/*
- * Copyright (c) 2026 DYSFNE
+/**
+ * @file hex.h
+ * @brief Write numbers as uppercase hexadecimal digits.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * The functions write digits only. They do not write a
+ * terminating '\0'.
  */
 
-#ifndef __RAIN_HEX_H__
-#define __RAIN_HEX_H__
+#ifndef RAIN_HEX_H
+#define RAIN_HEX_H
 
 #include <stdint.h>
 
-char *write_hex(char *dest, uint64_t offset, int digits);
-char *hex_byte(char *dest, unsigned char byte);
+/**
+ * @brief Write the low digits of a value as hexadecimal.
+ *
+ * Writes exactly @p digits characters, most significant digit
+ * first, with leading zeros. Bits of @p value above the
+ * @p digits lowest hex digits are ignored.
+ *
+ * @param[out] dst     Buffer that receives the digits.
+ * @param[in]  value   Value to write.
+ * @param[in]  digits  Number of digits to write (1-16).
+ *
+ * @pre @p dst is not NULL and has space for @p digits characters.
+ * @pre 1 <= @p digits <= 16 (checked with assert).
+ *
+ * @return Pointer to the position after the last digit written.
+ */
+char *hex_write(char *dst, uint64_t value, int digits);
 
-#endif /* __RAIN_HEX_H__ */
+/**
+ * @brief Write one byte as two hexadecimal digits.
+ *
+ * @param[out] dst   Buffer that receives the digits.
+ * @param[in]  byte  Byte to write.
+ *
+ * @pre @p dst is not NULL and has space for 2 characters.
+ *
+ * @return Pointer to the position after the last digit written.
+ */
+char *hex_write_byte(char *dst, unsigned char byte);
+
+#endif /* RAIN_HEX_H */

@@ -222,7 +222,7 @@ int code_point(FILE *fptr) {
       size_t count = cp_byte_size(buf[pos]);
 
       /* The character is not complete in the buffer: move its bytes to the
-       * start of the buffer, and read more bytes into the buffer */
+       * start of the buffer, and write more bytes into the buffer */
       if (count > available) {
         memmove(buf, buf + pos, available);
         break;
@@ -238,6 +238,15 @@ int code_point(FILE *fptr) {
 
         uint64_t cp = cp_decode(&buf[pos], count);
         ptrline = write_hex(ptrline, cp, cp_length(cp));
+
+        ptrline = PUT_STR(ptrline, "   ");
+
+        if (count == 1) {
+          *ptrline++ = char_set[cp];
+        } else {
+          ptrline = PUT_STR(ptrline, "ES");
+        }
+
         *ptrline++ = '\n';
 
         fwrite(line, 1, (size_t)(ptrline - line), stdout);

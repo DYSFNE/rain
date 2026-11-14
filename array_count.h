@@ -1,36 +1,22 @@
-/*
- * Copyright (c) 2026 DYSFNE
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/**
+ * @file array_count.h
+ * @brief Macro to get the number of elements in an array.
  */
 
-#ifndef __RAIN_ARRAY_COUNT_H__
-#define __RAIN_ARRAY_COUNT_H__
+#ifndef RAIN_ARRAY_COUNT_H
+#define RAIN_ARRAY_COUNT_H
 
 /**
- *  @brief: Calculate the size of a given array.
- *  @param:
- *      arr: Array that will be sized
+ * @brief Get the number of elements in an array.
+ *
+ * @param arr  An array object (not a pointer).
+ *
+ * @return Number of elements in @p arr, as a size_t constant.
+ *
+ * @warning Use only with a real array. If @p arr is a pointer,
+ *          the result is wrong and the compiler gives no error.
+ *          A function parameter declared as an array is a pointer.
  */
-#define ARRAY_COUNT(arr) (sizeof(arr) / sizeof(arr)[0])
+#define ARRAY_COUNT(arr) (sizeof(arr) / sizeof((arr)[0]))
 
-#endif /* __RAIN_ARRAY_COUNT_H__ */
+#endif /* RAIN_ARRAY_COUNT_H */

@@ -1,43 +1,25 @@
-/*
- * Copyright (c) 2026 DYSFNE
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/**
+ * @file hex.c
+ * @brief Implementation of hex.h.
  */
 
 #include "hex.h"
 #include <assert.h>
 
-static const char hex[] = "0123456789ABCDEF";
+/** Digit characters, indexed by the value of a 4-bit nibble. */
+static const char hexdigits[] = "0123456789ABCDEF";
 
-char *write_hex(char *dest, uint64_t value, int digits) {
+char *hex_write(char *dst, uint64_t value, int digits) {
   assert(digits >= 1 && digits <= 16);
+
+  /* Start at the most significant nibble that we write, and move
+   * down 4 bits for each digit. */
   for (int shift = (digits - 1) * 4; shift >= 0; shift -= 4) {
-    *dest++ = hex[(value >> shift) & 0x0F];
+    *dst++ = hexdigits[(value >> shift) & 0x0F];
   }
-  return dest;
+  return dst;
 }
 
-char *hex_byte(char *dest, unsigned char byte) {
-  *dest++ = hex[byte >> 4];
-  *dest++ = hex[byte & 0x0F];
-  return dest;
+char *hex_write_byte(char *dst, unsigned char byte) {
+  return hex_write(dst, byte, 2);
 }
