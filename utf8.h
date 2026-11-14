@@ -52,4 +52,6 @@ int utf8_is_valid_seq(const unsigned char *buf, size_t len);
  */
 int utf8_decode(const unsigned char *buf, size_t len, uint32_t *cp);
 
+int utf8_cp_len(uint32_t cp);
+
 #endif /* RAIN_UTF8_H */

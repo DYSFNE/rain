@@ -33,7 +33,19 @@ size_t utf8_lead_len(unsigned char lead) {
   return 0;
 }
 
-int utf8_code_validation(const unsigned char *buf, size_t len) {
+int utf8_cp_len(uint32_t cp) {
+  int len = 4;
+
+  if (cp > 0xFFFFF) {
+    len = 6;
+  } else if (cp > 0xFFFF) {
+    len = 5;
+  }
+
+  return len;
+}
+
+int utf8_is_valid_seq(const unsigned char *buf, size_t len) {
   if (len == 0 || len > 4 || utf8_lead_len(buf[0]) != len)
     return 0;
 
@@ -66,7 +78,7 @@ int utf8_code_validation(const unsigned char *buf, size_t len) {
 /* decode a complete, valid UTF-8 sequence of len bytes (1-4).
  * The caller is responsible for validation */
 int utf8_decode(const unsigned char *buf, size_t len, uint32_t *cp) {
-  if (!utf8_code_validation(buf, len))
+  if (!utf8_is_valid_seq(buf, len))
     return -1;
 
   /* Start with the payload bits of the lead byte. Then add 6 bits
