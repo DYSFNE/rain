@@ -1,22 +1,26 @@
-/**
- * @file array_count.h
- * @brief Macro to get the number of elements in an array.
- */
+/*
+**  November 14, 2026
+**
+**  Copyright (C) 2026 DYSFNE <DYSFNE@gmail.com>
+**  SPDX-License-Identifier: 0BSD
+**
+**************************************************************************
+**  This header file defines a macro to get the number of elements in an
+**  array.
+**
+*/
+#ifndef _RAIN_ARRAY_COUNT_H_
+#define _RAIN_ARRAY_COUNT_H_
 
-#ifndef RAIN_ARRAY_COUNT_H
-#define RAIN_ARRAY_COUNT_H
-
-/**
- * @brief Get the number of elements in an array.
- *
- * @param arr  An array object (not a pointer).
- *
- * @return Number of elements in @p arr, as a size_t constant.
- *
- * @warning Use only with a real array. If @p arr is a pointer,
- *          the result is wrong and the compiler gives no error.
- *          A function parameter declared as an array is a pointer.
- */
+/*
+**  Return the number of elements in an array.
+**
+**  The parameter arr must be an array object, not a pointer.  If the
+**  caller passes a pointer to arr the result is wrong and the compiler
+**  will not give an error.
+**
+**  TODO: Make the compiler reject a pointer as arr.
+*/
 #define ARRAY_COUNT(arr) (sizeof(arr) / sizeof((arr)[0]))
 
-#endif /* RAIN_ARRAY_COUNT_H */
+#endif /* _RAIN_ARRAY_COUNT_H_ */
