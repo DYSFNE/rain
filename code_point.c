@@ -73,7 +73,7 @@ int code_point(FILE *in, FILE *out) {
 
           size_t n = (size_t)(p - line);
 
-          if (fwrite(line, 1, n, stdout) != n)
+          if (fwrite(line, 1, n, out) != n)
             return -1;
         }
       }
