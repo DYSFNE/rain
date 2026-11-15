@@ -1,3 +1,15 @@
+/*
+**  November 15, 2026
+**
+**  Copyright (C) 2026 DYSFNE <DYSFNE@gmail.com>
+**  SPDX-License-Identifier: 0BSD
+**
+**************************************************************************
+**  This header file defines the interface to the character class table.
+**  It declares the character classes and the table that maps each byte
+**  value (0-255) to one class.  The table is defined in charclass.c
+*/
+
 #ifndef _RAIN_CHARCLASS_H_
 #define _RAIN_CHARCLASS_H_
 
