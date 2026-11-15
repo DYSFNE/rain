@@ -10,6 +10,13 @@
 
 enum { CP_BUF_SIZE = 128, CP_LINE_SIZE = 128 };
 
+/*
+**  Write one line to out that reports an invalid byte and its offset
+**  in the input.  The line has the same layout as the code point lines,
+**  so the output stays aligned.
+**
+**  Return 0 on success, or -1 if the write fails.
+*/
 static int print_invalid_byte(FILE *out, uint64_t offset, unsigned char byte) {
   char line[CP_LINE_SIZE];
   char *p = line;
@@ -24,13 +31,16 @@ static int print_invalid_byte(FILE *out, uint64_t offset, unsigned char byte) {
 
   return fwrite(line, 1, n, out) == n ? 0 : -1;
 }
-/**
- *  @brief:
- *      Print the offset and the code point of each UTF-8 character
- *      in a file, one character each line
- *  @return:
- *      Return 0 on success, or -1 if a read error occurred
- */
+
+/*
+**  Implementation of code_point().  See code_point.h for the interface.
+**
+**  The input is read in blocks into buf.  If a block ends in the middle
+**  of a character, the remaining bytes are moved to the start of buf and
+**  the next read continues after them.  At end of file, a character that
+**  is not complete is reported as one invalid lead byte, and decoding
+**  continues at the next byte.
+*/
 int code_point(FILE *in, FILE *out) {
   unsigned char buf[CP_BUF_SIZE];
   char line[CP_LINE_SIZE];
