@@ -9,9 +9,8 @@
 **  It declares the character classes and the table that maps each byte
 **  value (0-255) to one class.  The table is defined in charclass.c
 */
-
-#ifndef _RAIN_CHARCLASS_H_
-#define _RAIN_CHARCLASS_H_
+#ifndef RAIN_CHARCLASS_H
+#define RAIN_CHARCLASS_H
 
 /*
 **  Character classes.  Each byte value has exactly one class.
@@ -36,4 +35,4 @@ enum {
 
 extern const unsigned char charclass[256];
 
-#endif /* _RAIN_CHARCLASS_H_ */
+#endif /* RAIN_CHARCLASS_H */
