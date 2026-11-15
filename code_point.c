@@ -1,3 +1,16 @@
+/*
+**  2026 November 15
+**
+**  Copyright (C) 2026 DYSFNE <DYSFNE@gmail.com>
+**  SPDX-License-Identifier: 0BSD
+**
+*************************************************************************
+**  This file implements the code point printer.  It reads UTF-8 input in
+**  blocks, decodes each character, and writes one line for each character
+**  with its byte offset and its Unicode code point.  Invalid bytes are
+**  reported on their own lines, and decoding continues after them.
+*/
+
 #include "code_point.h"
 
 #include <stdint.h>
