@@ -1,10 +1,14 @@
-/**
- * @file hex.h
- * @brief Write numbers as uppercase hexadecimal digits.
- *
- * The functions write digits only. They do not write a
- * terminating '\0'.
- */
+/*
+**  2026 November 15
+**
+**  Copyright (C) 2026 DYSFNE <DYSFNE@gmail.com>
+**  SPDX-License-Identifier: 0BSD
+**
+*************************************************************************
+**  This header file defines the interface to the .  It
+**  reads UTF-8 input and prints the Unicode code point of each character
+**  on its own line.
+*/
 
 #ifndef RAIN_HEX_H
 #define RAIN_HEX_H
@@ -28,17 +32,5 @@
  * @return Pointer to the position after the last digit written.
  */
 extern char *hex_write(char *dst, uint64_t value, int digits);
-
-/**
- * @brief Write one byte as two hexadecimal digits.
- *
- * @param[out] dst   Buffer that receives the digits.
- * @param[in]  byte  Byte to write.
- *
- * @pre @p dst is not NULL and has space for 2 characters.
- *
- * @return Pointer to the position after the last digit written.
- */
-extern char *hex_write_byte(char *dst, unsigned char byte);
 
 #endif /* RAIN_HEX_H */
