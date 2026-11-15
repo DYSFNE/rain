@@ -91,20 +91,3 @@ int code_point(FILE *in, FILE *out) {
 
   return ferror(out) ? -1 : -0;
 }
-
-int main(void) {
-  FILE *fptr;
-
-  fptr = fopen("code_point.c", "rb");
-
-  if (fptr == NULL) {
-    printf("There was an issue\n");
-    return 1;
-  }
-
-  code_point(fptr, stdout);
-
-  fclose(fptr);
-
-  return 0;
-}
