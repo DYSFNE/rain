@@ -92,5 +92,5 @@ int code_point(FILE *in, FILE *out) {
       return -1;
   }
 
-  return ferror(out) ? -1 : -0;
+  return ferror(out) ? -1 : 0;
 }
