@@ -1,9 +1,12 @@
-#include "hex.h"
-#include "put_str.h"
-#include "utf8.h"
+#include "code_point.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "hex.h"
+#include "put_str.h"
+#include "utf8.h"
 
 enum { CP_BUF_SIZE = 128, CP_LINE_SIZE = 128 };
 
