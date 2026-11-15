@@ -27,7 +27,7 @@
  *
  * @return Pointer to the position after the last digit written.
  */
-char *hex_write(char *dst, uint64_t value, int digits);
+extern char *hex_write(char *dst, uint64_t value, int digits);
 
 /**
  * @brief Write one byte as two hexadecimal digits.
@@ -39,6 +39,6 @@ char *hex_write(char *dst, uint64_t value, int digits);
  *
  * @return Pointer to the position after the last digit written.
  */
-char *hex_write_byte(char *dst, unsigned char byte);
+extern char *hex_write_byte(char *dst, unsigned char byte);
 
 #endif /* RAIN_HEX_H */
