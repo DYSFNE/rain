@@ -1,7 +1,6 @@
 /*
- *  @file: charclass.c
- *  @description: This file defines a table that maps each byte value
- *  (0-255) to one character class.
+ *  @file:          charclass.c
+ *  @description:   Maps each byte value (0x00-0xFF) to a character class.
  */
 
 #include "charclass.h"
@@ -53,7 +52,8 @@ const unsigned char charclass[256] = {
   S, S, S, S,  S, S, S, S,  /* 0xE8-0xEF */
   S, S, S, S,  S, S, S, S,  /* 0xF0-0xF7 */
   S, S, S, S,  S, S, S, S,  /* 0xF8-0xFF */
-};/* clang-format on */
+};
+/* clang-format on */
 
 #undef S
 #undef D

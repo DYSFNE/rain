@@ -1,15 +1,7 @@
 /*
-**  2026 November 15
-**
-**  Copyright (C) 2026 DYSFNE <DYSFNE@gmail.com>
-**  SPDX-License-Identifier: 0BSD
-**
-*************************************************************************
-**  This file implements the code point printer.  It reads UTF-8 input in
-**  blocks, decodes each character, and writes one line for each character
-**  with its byte offset and its Unicode code point.  Invalid bytes are
-**  reported on their own lines, and decoding continues after them.
-*/
+ *  @file:          code_point.c
+ *  @description:   Implementation of the Unicode code point printer.
+ */
 
 #include "code_point.h"
 
@@ -24,12 +16,15 @@
 enum { CP_BUF_SIZE = 128, CP_LINE_SIZE = 128 };
 
 /*
-**  Write one line to out that reports an invalid byte and its offset
-**  in the input.  The line has the same layout as the code point lines,
-**  so the output stays aligned.
-**
-**  Return 0 on success, or -1 if the write fails.
-*/
+ *  @function:      print_invalid_byte()
+ *  @description:   Writes the byte offset and the value of an invalid byte.
+ *
+ *  @out:           Writable output stream.
+ *  @offset:        Offset of the invalid byte.
+ *  @byte:          The invalid byte value.
+ *
+ *  @return:        0 on success, or -1 if the write fails.
+ */
 static int print_invalid_byte(FILE *out, uint64_t offset, unsigned char byte) {
   char line[CP_LINE_SIZE];
   char *p = line;
@@ -46,14 +41,16 @@ static int print_invalid_byte(FILE *out, uint64_t offset, unsigned char byte) {
 }
 
 /*
-**  Implementation of code_point().  See code_point.h for the interface.
-**
-**  The input is read in blocks into buf.  If a block ends in the middle
-**  of a character, the remaining bytes are moved to the start of buf and
-**  the next read continues after them.  At end of file, a character that
-**  is not complete is reported as one invalid lead byte, and decoding
-**  continues at the next byte.
-*/
+ *  @function:      code_point()
+ *  @decription:    Reads UTF-8 encoded input and prints Unicode code points
+ *                  with their byte offsets. Invalid bytes are reported
+ *                  without terminating processing
+ *
+ *  @in:            Readable input stream.
+ *  @out:           Writable output stream.
+ *
+ *  @return:        0 on success, or -1 if a read or write error occur.
+ */
 int code_point(FILE *in, FILE *out) {
   unsigned char buf[CP_BUF_SIZE];
   char line[CP_LINE_SIZE];

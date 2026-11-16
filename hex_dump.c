@@ -1,13 +1,28 @@
+/*
+ *  @file:          hex_dump.c
+ *  @description:   Implements hexadecimal dumping of input streams.
+ */
+
 #include "array_count.h"
 #include "hex.h"
 #include "put_str.h"
 #include <stdio.h>
 
 /*
- * A 16-byte dump line requires at most 70 characters.
- * No null terminator is required
+ *  @function:      hex_dump()
+ *  @description:   Reads bytes from @in and writes their hexadecimal
+ *                  representation to @out, up to 16 bytes per line.
+ *
+ *  @in:            Readable input stream.
+ *  @out:           Writable output stream.
+ *
+ *  @return:        0 on success, -1 on a read or write error.
+ *
+ *  @note:          Each line begins with a 16-digit hexadecimal byte
+ *                  offset, followed by uppercase hexadecimal bytes.
+ *                  Bytes are separated by spaces, with an additional
+ *                  space between groups of four.
  */
-
 int hex_dump(FILE *in, FILE *out) {
   unsigned char buf[16];
   char line[96];

@@ -1,16 +1,16 @@
 /*
- *  @file: charclass.h
- *  @description: This file defines the interface the character class
- *  table. The table is defined in @file charclass.c
+ *  @file:          charclass.h
+ *  @description:   Character classification interface.
  */
 
 #ifndef RAIN_CHARCLASS_H
 #define RAIN_CHARCLASS_H
 
 /*
- *  Defines the character classes.
- *  R_STANDIN must be 0. Bytes that are in no other class get this value.
- *  R_STANDIN does not mean that a byte is invalid.
+ *  Character classes. Each byte belongs to exactly one class.
+ *
+ *  R_STANDIN must be 0. Bytes that are in no other class get this value,
+ *  but does not imply an invalid byte
  */
 enum {
   R_STANDIN = 0, /* in no other classes: $ @ ` and 0x80-0xFF */
