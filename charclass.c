@@ -1,20 +1,11 @@
 /*
-**  November 14, 2026
-**
-**  Copyright (C) 2026 DYSFNE <DYSFNE@gmail.com>
-**  SPDX-License-Identifier: 0BSD
-**
-**************************************************************************
-**  This file defines a table that maps each byte value (0-255) to one
-**  character class.  The lexer uses a byte as the index into the table.
-*/
+ *  @file: charclass.c
+ *  @description: This file defines a table that maps each byte value
+ *  (0-255) to one character class.
+ */
 
 #include "charclass.h"
 
-/*
-**  Short names, so that each row of the table fits on one line. These
-**  macros are removed after the table.
-*/
 #define S R_STANDIN
 #define D R_DIGIT
 #define L R_LOWERCASE
@@ -24,11 +15,6 @@
 #define X R_UNDERSCORE
 #define P R_PUNC
 #define C R_CONTROL
-
-/*
-**  The position of each entry is the byte value .  Each row holds 8
-**  entries.  The comment on each row gives its byte range and characters.
-*/
 
 /* clang-format off */
 const unsigned char charclass[256] = {
