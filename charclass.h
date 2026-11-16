@@ -1,26 +1,17 @@
 /*
-**  November 15, 2026
-**
-**  Copyright (C) 2026 DYSFNE <DYSFNE@gmail.com>
-**  SPDX-License-Identifier: 0BSD
-**
-**************************************************************************
-**  This header file defines the interface to the character class table.
-**  It declares the character classes and the table that maps each byte
-**  value (0-255) to one class.  The table is defined in charclass.c
-*/
+ *  @file: charclass.h
+ *  @description: This file defines the interface the character class
+ *  table. The table is defined in @file charclass.c
+ */
+
 #ifndef RAIN_CHARCLASS_H
 #define RAIN_CHARCLASS_H
 
 /*
-**  Character classes.  Each byte value has exactly one class.
-**
-**  R_STANDIN must be 0.  Bytes that are in no other class get this value,
-**  and this includes all bytes from 0x80 to 0xFF.  R_STANDIN does not
-**  mean that a byte is invalid.  The lexer decides what to do with the
-**  byte from its position: in a comment or a string it is permitted, and in
-**  other places it can be an error.
-*/
+ *  Defines the character classes.
+ *  R_STANDIN must be 0. Bytes that are in no other class get this value.
+ *  R_STANDIN does not mean that a byte is invalid.
+ */
 enum {
   R_STANDIN = 0, /* in no other classes: $ @ ` and 0x80-0xFF */
   R_DIGIT,       /* decimal digit: 0-9 */
