@@ -1,0 +1,15 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+UseTab: Never
+
+AllowShortEnumsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+
+MaxEmptyLinesToKeep: 2
+
+SeparateDefinitionBlocks: Leave

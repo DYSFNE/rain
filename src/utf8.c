@@ -1,6 +1,7 @@
 /**
- * @file utf8.c
- * @brief Implementation of utf8.h
+ *  @file           utf8.c
+ *  @description:   Implements UTF-8 sequence classification,
+ *                  validation, and decoding (see: RFC 3629).
  */
 
 #include "utf8.h"
@@ -78,8 +79,8 @@ int utf8_cp_len(uint32_t cp) {
  *                  @len bytes.
  *  @len:           Number of bytes in the sequence.
  *
- *  @return:        1 if buf[0..len - 1] is one complete, valid sequence.
- *                  0 of the sequence is not valid.
+ *  @return:        0 if buf[0..len - 1] is one complete, valid sequence.
+ *                  -1 of the sequence is not valid.
  */
 int utf8_is_valid_seq(const unsigned char *buf, size_t len) {
   if (len == 0 || len > 4 || utf8_lead_len(buf[0]) != len)
