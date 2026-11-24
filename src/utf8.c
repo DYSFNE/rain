@@ -44,30 +44,6 @@ size_t utf8_lead_len(unsigned char lead) {
   return 0;
 }
 
-/*
- *  @function:      utf8_cp_len()
- *  @description:   Determines the number of hexadecimal digits needed
- *                  to represent a Unicode code point, with a minimum
- *                  width of four digits.
- *
- *  @cp:            Unicode code point (0x0000-0x10FFFF).
- *
- *  @return:        4, 5, or 6 hexadecimal digits.
- *
- *  @note:          This is the display width of a code point, not
- *                  the number of bytes in its UTF-8 encoding.
- */
-int utf8_cp_len(uint32_t cp) {
-  int len = 4;
-
-  if (cp > 0xFFFFF) {
-    len = 6;
-  } else if (cp > 0xFFFF) {
-    len = 5;
-  }
-
-  return len;
-}
 
 /*
  *  @function:      utf8_is_valid_seq()
